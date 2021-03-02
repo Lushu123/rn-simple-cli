@@ -1,46 +1,55 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, FC, useReducer } from 'react';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { createContext, Dispatch, FC, useReducer } from "react";
 //context
-export const AuthContext = createContext({});
+export const AuthContext = createContext<{
+  signOut: () => void;
+  dispatch: Dispatch<any>;
+  auth: { initLoading: boolean; isSignIn: boolean; userToken: null | { userName: string } } | null;
+}>({
+  signOut: () => {},
+  dispatch: () => null,
+  auth: null,
+});
 
 //reducer 纯函数
 const reducer = (prevState, action) => {
   switch (action.type) {
-    case 'RESTORE_TOKEN':
+    case "RESTORE_TOKEN":
       return {
         ...prevState,
         userToken: action.token,
-        isLoading: false,
+        initLoading: false,
       };
-    case 'SIGN_IN':
+    case "SIGN_IN":
       return {
         ...prevState,
-        isSignOut: false,
+        isSignIn: true,
         userToken: action.token,
       };
-    case 'SIGN_OUT':
+    case "SIGN_OUT":
       return {
         ...prevState,
-        isSignOut: true,
+        isSignIn: false,
         userToken: null,
       };
   }
 };
 
 //Provider 组件
-const Auth: FC = (props) => {
+const AuthProvider: FC = (props) => {
   const [auth, dispatch] = useReducer(reducer, {
-    isLoading: true,
-    isSignOut: false,
+    initLoading: true,
+    isSignIn: false,
     userToken: null,
   });
   React.useEffect(() => {
     const bootstrapAsync = async () => {
       let userToken;
       try {
-        userToken = await AsyncStorage.getItem('userToken');
+        userToken = await AsyncStorage.getItem("userToken");
+        console.log(userToken);
       } catch (e) {}
-      dispatch({ type: 'RESTORE_TOKEN', token: userToken });
+      dispatch({ type: "RESTORE_TOKEN", token: userToken });
     };
 
     bootstrapAsync();
@@ -48,24 +57,13 @@ const Auth: FC = (props) => {
 
   const authContext = React.useMemo(
     () => ({
-      signIn: async () => {
-        dispatch({ type: 'SIGN_IN', token: 'dummy-auth-token' });
-      },
-      signOut: () => dispatch({ type: 'SIGN_OUT' }),
-      signUp: async () => {
-        dispatch({ type: 'SIGN_IN', token: 'dummy-auth-token' });
-      },
-      isSignIn() {
-        return !auth.isSignOut && !!auth.userToken;
-      },
+      signOut: () => dispatch({ type: "SIGN_OUT" }),
+      dispatch,
+      auth,
     }),
     [auth]
   );
-  return (
-    <AuthContext.Provider value={authContext}>
-      {props.children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={authContext}>{props.children}</AuthContext.Provider>;
 };
 
-export default Auth;
+export default AuthProvider;

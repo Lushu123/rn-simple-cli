@@ -1,21 +1,15 @@
-import React from 'react';
-import { StyleSheet } from 'react-native';
-import Auth from './src/contexts/AuthContext';
-import RootNavigator from './src/navigation';
+import React from "react";
+import { StyleSheet } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import AuthProvider from "./src/contexts/AuthContext";
+import RootNavigator from "./src/navigation";
 
 export default function App() {
   return (
-    <Auth>
-      <RootNavigator />
-    </Auth>
+    <AuthProvider>
+      <SafeAreaProvider>
+        <RootNavigator />
+      </SafeAreaProvider>
+    </AuthProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

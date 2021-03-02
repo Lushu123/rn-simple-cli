@@ -1,7 +1,8 @@
-import { Route } from '@react-navigation/native';
-import { StackNavigationOptions } from '@react-navigation/stack';
-import BottomTabNavigator from './bottomTab';
-import { RootStackParamList } from './type';
+import { Route } from "@react-navigation/native";
+import { StackNavigationOptions } from "@react-navigation/stack";
+import SignIn from "../screens/SignIn";
+import BottomTabNavigator from "./bottomTab";
+import { RootStackParamList } from "./type";
 
 export const rootNavigator: Array<{
   name: keyof RootStackParamList;
@@ -15,8 +16,15 @@ export const rootNavigator: Array<{
     | undefined;
 }> = [
   {
-    name: 'TabRoot',
+    name: "TabRoot",
     component: BottomTabNavigator,
     options: ({ navigation, route }) => ({}),
+  },
+  {
+    name: "SignIn",
+    component: SignIn,
+    options: ({ navigation, route }) => ({
+      title: "登录",
+    }),
   },
 ];
