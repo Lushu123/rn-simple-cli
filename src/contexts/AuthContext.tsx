@@ -1,10 +1,14 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { createContext, Dispatch, FC, useReducer } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, Dispatch, FC, Reducer, useReducer } from 'react';
 //context
-export const AuthContext = createContext<{
+const AuthContext = createContext<{
   signOut: () => void;
   dispatch: Dispatch<any>;
-  auth: { initLoading: boolean; isSignIn: boolean; userToken: null | { userName: string } } | null;
+  auth: {
+    initLoading: boolean;
+    isSignIn: boolean;
+    userToken: null | { userName: string };
+  } | null;
 }>({
   signOut: () => {},
   dispatch: () => null,
@@ -12,31 +16,40 @@ export const AuthContext = createContext<{
 });
 
 //reducer 纯函数
-const reducer = (prevState, action) => {
+const reducer: Reducer<
+  {
+    initLoading: boolean;
+    isSignIn: boolean;
+    userToken: null | { userName: string };
+  },
+  { type: string; data?: any }
+> = (prevState, action) => {
   switch (action.type) {
-    case "RESTORE_TOKEN":
+    case 'RESTORE_TOKEN':
       return {
         ...prevState,
-        userToken: action.token,
+        userToken: action.data,
         initLoading: false,
       };
-    case "SIGN_IN":
+    case 'SIGN_IN':
       return {
         ...prevState,
         isSignIn: true,
-        userToken: action.token,
+        userToken: action.data,
       };
-    case "SIGN_OUT":
+    case 'SIGN_OUT':
       return {
         ...prevState,
         isSignIn: false,
         userToken: null,
       };
+    default:
+      return prevState;
   }
 };
 
 //Provider 组件
-const AuthProvider: FC = (props) => {
+export const AuthProvider: FC = (props) => {
   const [auth, dispatch] = useReducer(reducer, {
     initLoading: true,
     isSignIn: false,
@@ -46,10 +59,10 @@ const AuthProvider: FC = (props) => {
     const bootstrapAsync = async () => {
       let userToken;
       try {
-        userToken = await AsyncStorage.getItem("userToken");
+        userToken = await AsyncStorage.getItem('userToken');
         console.log(userToken);
       } catch (e) {}
-      dispatch({ type: "RESTORE_TOKEN", token: userToken });
+      dispatch({ type: 'RESTORE_TOKEN', data: userToken });
     };
 
     bootstrapAsync();
@@ -57,13 +70,17 @@ const AuthProvider: FC = (props) => {
 
   const authContext = React.useMemo(
     () => ({
-      signOut: () => dispatch({ type: "SIGN_OUT" }),
+      signOut: () => dispatch({ type: 'SIGN_OUT' }),
       dispatch,
       auth,
     }),
     [auth]
   );
-  return <AuthContext.Provider value={authContext}>{props.children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={authContext}>
+      {props.children}
+    </AuthContext.Provider>
+  );
 };
 
-export default AuthProvider;
+export default AuthContext;

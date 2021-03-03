@@ -1,6 +1,6 @@
-import React, { useContext, useEffect } from "react";
-import { Button, Text, View } from "react-native";
-import { AuthContext } from "../contexts/AuthContext";
+import React, { useContext, useEffect } from 'react';
+import { Text, View } from 'react-native';
+import AuthContext from '../contexts/AuthContext';
 
 const Home = () => {
   const { auth } = useContext(AuthContext);
@@ -11,7 +11,11 @@ const Home = () => {
     <View>
       <Text>Home</Text>
 
-      {auth?.isSignIn ? <Text>{auth?.userToken?.userName}</Text> : <Text>未登录</Text>}
+      {auth?.isSignIn ? (
+        <Text>{auth?.userToken?.userName}</Text>
+      ) : (
+        <Text>未登录</Text>
+      )}
     </View>
   );
 };
